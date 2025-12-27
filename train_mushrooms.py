@@ -1,24 +1,23 @@
 import os
-import time
 import copy
 import json
 from pathlib import Path
-from typing import Dict
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, random_split, Subset
 from torchvision import transforms, models, datasets
-from PIL import ImageFile
+from PIL import ImageFile, Image
+
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 from tqdm import tqdm
 
 
-DATA_DIR = "F:/Mushrooms"
+DATA_DIR = "D:/Mushrooms"
 MODEL_DIR = "models"
-MODEL_NAME = "mushrooms_resnet50.pt"
+MODEL_NAME = "mushrooms_resnet18.pt"
 NUM_CLASSES = 9
 BATCH_SIZE = 32
 NUM_EPOCHS = 15
@@ -51,11 +50,6 @@ def get_device():
 
 
 def make_dataloaders_single_folder(data_dir: str):
-    """
-    В data_dir лежат подпапки классов.
-    Разделение train/val — случайное, внутри Python.
-    """
-
     transform_train = transforms.Compose([
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.7, 1.0)),
         transforms.RandomHorizontalFlip(),
@@ -100,13 +94,13 @@ def make_dataloaders_single_folder(data_dir: str):
 
 
 def build_model(num_classes=NUM_CLASSES):
-    model = models.resnet50(pretrained=True)
+    model = models.resnet18(pretrained=True)
     in_f = model.fc.in_features
     model.fc = nn.Sequential(
-        nn.Linear(in_f, 512),
+        nn.Linear(in_f, 256),
         nn.ReLU(inplace=True),
-        nn.Dropout(0.4),
-        nn.Linear(512, num_classes)
+        nn.Dropout(0.3),
+        nn.Linear(256, num_classes)
     )
     return model
 
